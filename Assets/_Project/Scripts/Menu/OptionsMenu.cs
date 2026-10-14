@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class OptionsMenu : MonoBehaviour
 {
+    [SerializeField] private InputRelay inputRelay;
+
     #region Graphics Fields
     [Header("Graphics Options")]
     [SerializeField] private Toggle fullscreenToggle;
@@ -40,6 +42,12 @@ public class OptionsMenu : MonoBehaviour
     private const int VOLUME_OFFSET_VALUE = 80;
     #endregion
 
+    #region Rebinding Fields
+    [SerializeField] private GameObject rebindMenu;
+    #endregion
+
+    private void OnEnable() => inputRelay.OnPaused += Close;
+
     private void Start()
     {
         SetupGraphicsOptions();
@@ -52,11 +60,9 @@ public class OptionsMenu : MonoBehaviour
         resolutionDropdownList.onValueChanged.AddListener(OnDropdownValueChanged);
     }
 
-    private void Update()
-    {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-            gameObject.SetActive(false);
-    }
+    private void OnDisable() => inputRelay.OnPaused -= Close;
+
+    public void Close() => gameObject.SetActive(false);
 
     #region Graphics Functions
     public void SetupGraphicsOptions()
@@ -200,6 +206,13 @@ public class OptionsMenu : MonoBehaviour
     public void LoadSFXVolume()
     {
         LoadVolumeSettings(sfxVolumeText, sfxSlider, SFX_VOLUME_MIXER_NAME);
+    }
+    #endregion
+
+    #region Rebinding Functions
+    public void OpenRebindMenu()
+    {
+        rebindMenu.SetActive(true);
     }
     #endregion
 }

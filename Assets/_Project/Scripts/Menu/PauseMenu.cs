@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
+    [SerializeField] private InputEnabler enabler;
     [SerializeField] private GameObject optionsScreen;
     [SerializeField] private GameObject pauseScreen;
     [SerializeField] private GameObject loadingScreen;
@@ -14,13 +15,9 @@ public class PauseMenu : MonoBehaviour
 
     private const string MAIN_MENU_SCENE_NAME = "MainMenu";
 
-    private bool isPaused;
+    private void OnEnable() => enabler.OnPaused += TogglePause;
 
-    private void Update()
-    {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-            PauseUnpause();
-    }
+    private void OnDisable() => enabler.OnPaused -= TogglePause;
 
     public IEnumerator LoadMain()
     {
@@ -48,35 +45,21 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    public void PauseUnpause()
+    public void TogglePause(bool isPaused)
     {
-        if (!isPaused)
-        {
-            pauseScreen.SetActive(true);
-            isPaused = true;
-            Time.timeScale = 0f;
-        }
-        else
-        {
-            pauseScreen.SetActive(false);
-            isPaused = false;
-            Time.timeScale = 1f;
-        }
+        pauseScreen.SetActive(isPaused);
     }
 
-    public void OpenOptions()
+    public void ResumeButtonClicked()
     {
-        optionsScreen.SetActive(true);
+        pauseScreen.SetActive(false);
+        enabler.CurrentlyPaused = false;
+        Time.timeScale = 1f;
     }
 
-    public void CloseOptions()
-    {
-        optionsScreen.SetActive(false);
-        PauseUnpause();
-    }
+    public void OpenOptions() => optionsScreen.SetActive(true);
 
-    public void QuitToMainMenu()
-    {
-        StartCoroutine(LoadMain());
-    }
+    public void CloseOptions() => optionsScreen.SetActive(false);
+
+    public void QuitToMainMenu() => StartCoroutine(LoadMain());
 }
